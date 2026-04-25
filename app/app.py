@@ -136,7 +136,6 @@ with col_left:
                             if tweets:
                                 results = predictor.predict_batch(tweets)
                                 timestamp = datetime.now()
-                                # Add batch to history
                                 for t, (s, c) in zip(tweets, results):
                                     st.session_state.history.append({
                                         "Timestamp": timestamp,
@@ -148,10 +147,41 @@ with col_left:
                                     })
                                 st.session_state.twitter_data = {"keyword": keyword, "tweets": tweets}
                                 st.rerun()
-                            else:
-                                st.warning("No data returned from X.")
                     except Exception as e:
                         st.error(f"Fetch failed: {e}")
+                        st.info("💡 **Pro-Tip:** Your API Tier might be restricted. Use the 'Simulate' button below to test the dashboard features!")
+
+            if st.button("🎭 Simulate Live Data (No API Required)", use_container_width=True):
+                if not keyword:
+                    st.error("Please enter a keyword first.")
+                else:
+                    with st.spinner(f"Simulating live stream for '{keyword}'..."):
+                        time.sleep(1.5)
+                        mock_tweets = [
+                            f"I love how {keyword} is changing the industry! #innovation",
+                            f"Just tried {keyword} and it was a bit disappointing. #feedback",
+                            f"{keyword} is absolutely amazing, best experience ever! #happy",
+                            f"Not sure about {keyword}, still has some bugs to fix. #neutral",
+                            f"The new update for {keyword} is a game changer! 🔥",
+                            f"Is anyone else having issues with {keyword} today? #help",
+                            f"Great session today learning about {keyword}! #learning",
+                            f"I hate how expensive {keyword} has become. #sad",
+                            f"So excited for the future of {keyword}! 🚀",
+                            f"{keyword} is just okay, nothing special. #honestreview"
+                        ]
+                        results = predictor.predict_batch(mock_tweets)
+                        timestamp = datetime.now()
+                        for t, (s, c) in zip(mock_tweets, results):
+                            st.session_state.history.append({
+                                "Timestamp": timestamp,
+                                "Source": f"Simulated: {keyword}",
+                                "Text": t,
+                                "Sentiment": s,
+                                "Confidence_Val": c,
+                                "Confidence": f"{c:.1%}"
+                            })
+                        st.session_state.twitter_data = {"keyword": keyword, "tweets": mock_tweets}
+                        st.rerun()
         
         st.markdown('</div>', unsafe_allow_html=True)
 
