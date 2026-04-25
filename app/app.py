@@ -4,6 +4,7 @@ import sys
 import os
 import json
 from datetime import datetime
+# Professional Analytics Dashboard v3.8 - Multi-Model Edition (Cache Cleared)
 import time
 
 # Add root to sys.path to allow modular imports
@@ -11,11 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.predict import get_predictor
 from core.twitter_fetch import TwitterFetcher
-from analytics.visualize import (
-    create_sentiment_pie, create_sentiment_bar, create_trend_graph, 
-    create_confidence_dist, generate_wordcloud, create_hashtag_chart,
-    create_model_comparison_chart
-)
+import visuals.engine as vis
 
 # Page configuration
 st.set_page_config(
@@ -176,26 +173,26 @@ with mode[0]:
         else:
             df_viz = pd.DataFrame(st.session_state.history)
             r1c1, r1c2 = st.columns(2)
-            with r1c1: st.plotly_chart(create_sentiment_pie(df_viz), use_container_width=True)
-            with r1c2: st.plotly_chart(create_sentiment_bar(df_viz), use_container_width=True)
+            with r1c1: st.plotly_chart(vis.create_sentiment_pie(df_viz), use_container_width=True)
+            with r1c2: st.plotly_chart(vis.create_sentiment_bar(df_viz), use_container_width=True)
             
             r2c1, r2c2 = st.columns(2)
             with r2c1: 
-                t_fig = create_trend_graph(df_viz)
+                t_fig = vis.create_trend_graph(df_viz)
                 if t_fig: st.plotly_chart(t_fig, use_container_width=True)
             with r2c2: 
-                c_fig = create_confidence_dist(df_viz)
+                c_fig = vis.create_confidence_dist(df_viz)
                 if c_fig: st.plotly_chart(c_fig, use_container_width=True)
 
             st.markdown("### ☁️ Word Clouds")
             cp, cn = st.columns(2)
             with cp:
                 st.markdown("<p style='text-align:center; color:#10b981;'>Positive</p>", unsafe_allow_html=True)
-                fp = generate_wordcloud(" ".join(df_viz[df_viz['Sentiment'] == 'Positive']['Text']))
+                fp = vis.generate_wordcloud(" ".join(df_viz[df_viz['Sentiment'] == 'Positive']['Text']))
                 if fp: st.pyplot(fp)
             with cn:
                 st.markdown("<p style='text-align:center; color:#ef4444;'>Negative</p>", unsafe_allow_html=True)
-                fn = generate_wordcloud(" ".join(df_viz[df_viz['Sentiment'] == 'Negative']['Text']), color='blue')
+                fn = vis.generate_wordcloud(" ".join(df_viz[df_viz['Sentiment'] == 'Negative']['Text']), color='blue')
                 if fn: st.pyplot(fn)
 
 # --- TAB 2: MODEL COMPARISON ---
@@ -210,7 +207,7 @@ with mode[1]:
         col_m_left, col_m_right = st.columns([1.5, 1])
         
         with col_m_left:
-            st.plotly_chart(create_model_comparison_chart(comp_data), use_container_width=True)
+            st.plotly_chart(vis.create_model_comparison_chart(comp_data), use_container_width=True)
             
         with col_m_right:
             st.markdown("#### 🏆 Best Model")
