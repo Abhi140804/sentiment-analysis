@@ -13,7 +13,7 @@ def create_sentiment_pie(df):
     Creates a professional Pie chart for sentiment distribution.
     """
     counts = df['Sentiment'].value_counts()
-    color_map = {"Positive": "#4ade80", "Neutral": "#fbbf24", "Negative": "#f87171"}
+    color_map = {"Positive": "#10b981", "Neutral": "#f59e0b", "Negative": "#ef4444"}
     
     fig = px.pie(
         names=counts.index,
@@ -37,7 +37,7 @@ def create_sentiment_bar(df):
     Creates a Bar chart for sentiment counts.
     """
     counts = df['Sentiment'].value_counts()
-    color_map = {"Positive": "#4ade80", "Neutral": "#fbbf24", "Negative": "#f87171"}
+    color_map = {"Positive": "#10b981", "Neutral": "#f59e0b", "Negative": "#ef4444"}
     
     fig = px.bar(
         x=counts.index,
@@ -62,14 +62,7 @@ def create_trend_graph(df):
     if 'Timestamp' not in df.columns or df.empty:
         return None
         
-    # Map sentiments to numeric values for trending
-    # We'll use a 5-point moving average or just raw counts over time
-    df = df.copy()
-    # Sort by time
-    df = df.sort_values('Timestamp')
-    
-    # We can count sentiments over time buckets if we have many entries
-    # Or just plot individual points with a score
+    df = df.copy().sort_values('Timestamp')
     score_map = {"Positive": 1, "Neutral": 0, "Negative": -1}
     df['Score'] = df['Sentiment'].map(score_map)
     
@@ -155,5 +148,34 @@ def create_hashtag_chart(texts):
         plot_bgcolor="rgba(0,0,0,0)",
         font={"color": "white"},
         yaxis={'categoryorder':'total ascending'}
+    )
+    return fig
+
+def create_model_comparison_chart(comparison_data):
+    """
+    Creates a bar chart comparing accuracies of different ML models.
+    """
+    results = comparison_data['results']
+    df = pd.DataFrame(list(results.items()), columns=['Model', 'Accuracy'])
+    
+    # Sort by accuracy
+    df = df.sort_values('Accuracy', ascending=False)
+    
+    fig = px.bar(
+        df, x='Model', y='Accuracy',
+        text='Accuracy',
+        title="Model Accuracy Comparison (%)",
+        color='Model',
+        color_discrete_sequence=['#ffcc00', '#1a1a1a', '#3b82f6'],
+        labels={'Accuracy': 'Accuracy (%)'}
+    )
+    
+    fig.update_traces(texttemplate='%{text}%', textposition='outside')
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"color": "white", "family": "Outfit"},
+        yaxis_range=[0, 100],
+        showlegend=False
     )
     return fig

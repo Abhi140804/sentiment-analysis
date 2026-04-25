@@ -38,4 +38,12 @@ class TwitterFetcher:
             return [t for t in cleaned_tweets if t] # Filter out empty strings
             
         except Exception as e:
-            raise Exception(f"Twitter API Error: {e}")
+            error_msg = str(e)
+            if "403" in error_msg:
+                raise Exception("Twitter API Error 403: Forbidden. Your X API Free tier might not have 'search' access. Check your App permissions in the X Developer Portal.")
+            elif "401" in error_msg:
+                raise Exception("Twitter API Error 401: Unauthorized. Please check if your Bearer Token is correct.")
+            elif "429" in error_msg:
+                raise Exception("Twitter API Error 429: Rate Limit Exceeded. Please wait before trying again.")
+            else:
+                raise Exception(f"Twitter API Error: {error_msg}")
